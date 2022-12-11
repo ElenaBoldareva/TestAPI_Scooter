@@ -1,3 +1,5 @@
+package pojo;
+
 public class Order {
     private int id;
     private String firstName;

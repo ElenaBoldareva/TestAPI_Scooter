@@ -1,11 +1,19 @@
+package helper;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.restassured.response.Response;
+import pojo.Order;
+import pojo.TrackOrder;
 
 import static io.restassured.RestAssured.given;
 
 public class OrderAPIHelper {
+    private static final String ORDER_URL = "/api/v1/orders/";
+    private static final String ORDER_TRACK_URL = ORDER_URL + "track";
+    private static final String ORDER_ACCEPT_URL = ORDER_URL + "accept/";
+    private static final String ORDER_CANCEL_URL = ORDER_URL + "cancel";
 
     public Response createOrder(Order order) {
         Response response =
@@ -14,14 +22,14 @@ public class OrderAPIHelper {
                         .and()
                         .body(order)
                         .when()
-                        .post("/api/v1/orders");
+                        .post(ORDER_URL);
         return response;
     }
 
     public Response getOrders() {
         Response response =
                 given()
-                        .get("/api/v1/orders/");
+                        .get(ORDER_URL);
         return response;
     }
 
@@ -29,14 +37,14 @@ public class OrderAPIHelper {
         Response response =
                 given()
                         .queryParam("t", t)
-                        .get("/api/v1/orders/track");
+                        .get(ORDER_TRACK_URL);
         return response;
     }
 
     public Response getOrderWithoutTrack() {
         Response response =
                 given()
-                        .get("/api/v1/orders/track");
+                        .get(ORDER_TRACK_URL);
         return response;
     }
 
@@ -44,7 +52,7 @@ public class OrderAPIHelper {
         Response response =
                 given()
                         .queryParam("courierId", courierId)
-                        .put("/api/v1/orders/accept/" + orderId);
+                        .put(ORDER_ACCEPT_URL + orderId);
         return response;
     }
 
@@ -52,14 +60,14 @@ public class OrderAPIHelper {
         Response response =
                 given()
                         .queryParam("courierId", courierId)
-                        .put("/api/v1/orders/accept/");
+                        .put(ORDER_ACCEPT_URL);
         return response;
     }
 
     public Response acceptWithoutCourierId(int orderId) {
         Response response =
                 given()
-                        .put("/api/v1/orders/accept/" + orderId);
+                        .put(ORDER_ACCEPT_URL+ orderId);
         return response;
     }
 
@@ -70,7 +78,7 @@ public class OrderAPIHelper {
                 .and()
                 .body(trackOrder)
                 .when()
-                .post("/api/v1/orders/cancel");
+                .post(ORDER_CANCEL_URL);
     }
 
     public int getOrderId(int track) {

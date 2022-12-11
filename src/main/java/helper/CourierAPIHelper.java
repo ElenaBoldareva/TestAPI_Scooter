@@ -1,9 +1,14 @@
+package helper;
+
 import com.google.gson.Gson;
 import io.restassured.response.Response;
+import pojo.Courier;
 
 import static io.restassured.RestAssured.given;
 
 public class CourierAPIHelper {
+    private static final String COURIER_URL = "/api/v1/courier/";
+    private static final String COURIER_LOGIN_URL = COURIER_URL + "login";
     public Response createCourier(Courier courier) {
         Response response =
                 given()
@@ -11,7 +16,7 @@ public class CourierAPIHelper {
                         .and()
                         .body(courier)
                         .when()
-                        .post("/api/v1/courier");
+                        .post(COURIER_URL);
         return response;
     }
 
@@ -27,14 +32,14 @@ public class CourierAPIHelper {
         Response response =
                 given()
                         .header("Content-type", "application/json")
-                        .delete("/api/v1/courier/" + id);
+                        .delete(COURIER_URL + id);
         return response;
     }
 
     public Response deleteCourier() {
         Response response =
                 given()
-                        .delete("/api/v1/courier/");
+                        .delete(COURIER_URL);
         return response;
     }
 
@@ -45,7 +50,7 @@ public class CourierAPIHelper {
                         .and()
                         .body(courier)
                         .when()
-                        .post("/api/v1/courier/login");
+                        .post(COURIER_LOGIN_URL);
         return response;
     }
 

@@ -1,8 +1,13 @@
+import helper.CourierAPIHelper;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
+import pojo.Courier;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -19,7 +24,7 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of create courier")
     public void createNewCourierTest() {
-        Courier courier = new Courier("limgyghl", "1234", "saske");
+        Courier courier = getRandomCourier();
         Response response = courierAPIHelper.createCourier(courier);
         response.then().assertThat().body("ok", equalTo(true))
                 .and()
@@ -31,7 +36,7 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of create copy courier")
     public void createCopyCourierTest() {
-        Courier courier = new Courier("limgyghl", "4321", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
         Response response = courierAPIHelper.createCourier(courier);
         response.then().assertThat().body("message", equalTo("Этот логин уже используется. Попробуйте другой."))
@@ -65,7 +70,7 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of authorisation courier")
     public void courierAuthorisationTest() {
-        Courier courier = new Courier("John", "1234", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
         Response response = courierAPIHelper.getAuthorisationCourier(courier);
         response.then().assertThat().body("id", notNullValue())
@@ -88,9 +93,9 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of authorisation courier without password")
     public void courierAuthorisationWithoutPasswordTest() {
-        Courier courier = new Courier("wertyuiop", "1234", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
-        Courier courierWithoutPassword = new Courier("wertyuiop", "", "saske");
+        Courier courierWithoutPassword = new Courier(courier.getLogin(), "", courier.getFirstName());
         Response response = courierAPIHelper.getAuthorisationCourier(courierWithoutPassword);
         response.then().assertThat().body("message", equalTo("Недостаточно данных для входа"))
                 .and()
@@ -102,9 +107,9 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of authorisation courier wrong password")
     public void courierAuthorisationWrongPasswordTest() {
-        Courier courier = new Courier("John", "54343.", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
-        Courier courierWrongPassword = new Courier("John", "11111", "saske");
+        Courier courierWrongPassword = new Courier(courier.getLogin(), "11111", courier.getFirstName());
         Response response = courierAPIHelper.getAuthorisationCourier(courierWrongPassword);
         response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
                 .and()
@@ -116,9 +121,9 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of authorisation courier wrong login")
     public void courierAuthorisationWrongLoginTest() {
-        Courier courier = new Courier("John", "54343.", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
-        Courier courierWrongLogin = new Courier("Tjkhiuhn", "11111", "saske");
+        Courier courierWrongLogin = new Courier("Tjkh412ngfiuhn", courier.getPassword(), courier.getFirstName());
         Response response = courierAPIHelper.getAuthorisationCourier(courierWrongLogin);
         response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
                 .and()
@@ -130,7 +135,7 @@ public class CourierTest {
     @Test
     @DisplayName("Check status code of delete courier")
     public void deleteCourierTest() {
-        Courier courier = new Courier("limgyghl", "1234", "saske");
+        Courier courier = getRandomCourier();
         courierAPIHelper.createCourier(courier);
         int id = courierAPIHelper.getCourierId(courier);
         Response response = courierAPIHelper.deleteCourier(id);
@@ -158,5 +163,20 @@ public class CourierTest {
         response.then().assertThat().body("message", equalTo("Курьера с таким id нет."))
                 .and()
                 .statusCode(404);
+    }
+
+    private Courier getRandomCourier(){
+        Random random = new Random();
+        byte[] loginArray = new byte[5];
+        random.nextBytes(loginArray);
+        String login = new String(loginArray, StandardCharsets.UTF_8);
+        byte[] passwordArray = new byte[9];
+        random.nextBytes(passwordArray);
+        String password = new String(passwordArray, StandardCharsets.UTF_8);
+        byte[] firstnameArray = new byte[5];
+        random.nextBytes(firstnameArray);
+        String firstname = new String(firstnameArray, StandardCharsets.UTF_8);
+        Courier courier = new Courier(login, password, firstname);
+        return courier;
     }
 }

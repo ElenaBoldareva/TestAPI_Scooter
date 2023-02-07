@@ -1,1 +1,1 @@
-# Sprint_7
+# Yandex_Practicum_API_Scooter(courier/order)
